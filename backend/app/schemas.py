@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, Field, validator
 
 
 class SongCreate(BaseModel):
@@ -16,7 +16,7 @@ class SongCreate(BaseModel):
     notes: Optional[str] = None
     status: Optional[str] = Field(default="pending")
 
-    @field_validator("status")
+    @validator("status")
     def validate_status(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
@@ -34,7 +34,7 @@ class SongUpdate(BaseModel):
     notes: Optional[str] = None
     status: Optional[str] = None
 
-    @field_validator("status")
+    @validator("status")
     def validate_status(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
@@ -56,7 +56,8 @@ class SongRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 
 class SongPlaybackInfo(BaseModel):
@@ -67,7 +68,8 @@ class SongPlaybackInfo(BaseModel):
     start_time_seconds: int
     anime_title: Optional[str] = None
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 
 class RoomCreate(BaseModel):
@@ -85,7 +87,8 @@ class PlayerRead(BaseModel):
     is_host: bool
     joined_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 
 class RoomState(BaseModel):
@@ -101,7 +104,8 @@ class RoomState(BaseModel):
     winning_player_id: Optional[int] = None
     players: List[PlayerRead]
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 
 class RoomJoinResponse(BaseModel):
@@ -131,7 +135,8 @@ class RoundState(BaseModel):
     skip_votes: int
     total_players: int
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 
 class GuessCreate(BaseModel):
@@ -147,7 +152,8 @@ class GuessRead(BaseModel):
     is_correct: bool
     submitted_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
 
 
 class GuessResponse(BaseModel):
