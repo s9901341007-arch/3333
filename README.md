@@ -91,6 +91,8 @@ source .venv/bin/activate  # Windows 使用 .venv\Scripts\activate
 
    終端機出現 `Uvicorn running on http://0.0.0.0:8000`（或顯示實際區網 IP）代表後端啟動成功，其他裝置才能順利連線。
 
+   > 若之後想限制只能從特定網址呼叫 API，可設定環境變數 `CORS_ALLOW_ORIGINS`（以逗號分隔，例如 `http://localhost:5173,http://127.0.0.1:5173`）。
+
 5. 測試健康檢查：在另一個終端機或瀏覽器開啟 `http://localhost:8000/health`，應會看到 `{"status":"ok"}`。
 
 ---

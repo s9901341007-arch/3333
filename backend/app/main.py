@@ -49,12 +49,24 @@ def startup() -> None:
 
 
 cors_origins = os.getenv("CORS_ALLOW_ORIGINS")
-allow_origins = DEFAULT_ALLOWED_ORIGINS if not cors_origins else {origin.strip() for origin in cors_origins.split(",") if origin.strip()}
+if cors_origins:
+    allow_origins = {
+        origin.strip()
+        for origin in cors_origins.split(",")
+        if origin.strip()
+    }
+    if not allow_origins:
+        allow_origins = set(DEFAULT_ALLOWED_ORIGINS)
+    allow_all_origins = False
+else:
+    # 預設允許所有來源，方便玩家透過主機的區網 IP 連線。
+    allow_origins = {"*"}
+    allow_all_origins = True
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=list(allow_origins) or ["*"],
-    allow_credentials=True,
+    allow_origins=list(allow_origins),
+    allow_credentials=not allow_all_origins,
     allow_methods=["*"],
     allow_headers=["*"]
 )
