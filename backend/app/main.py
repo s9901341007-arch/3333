@@ -116,7 +116,7 @@ def _build_room_state(session: Session, room: Room) -> RoomState:
         created_at=room.created_at,
         updated_at=room.updated_at,
         winning_player_id=room.winning_player_id,
-        players=[PlayerRead.from_orm(player) for player in players],
+        players=[PlayerRead.model_validate(player, from_attributes=True) for player in players],
     )
 
 
@@ -190,7 +190,7 @@ def create_song(
     session.add(song)
     session.commit()
     session.refresh(song)
-    return SongRead.from_orm(song)
+    return SongRead.model_validate(song, from_attributes=True)
 
 
 @app.get("/songs", response_model=list[SongRead])
@@ -202,7 +202,7 @@ def list_songs(
     if status_filter:
         statement = statement.where(Song.status == status_filter)
     songs = session.exec(statement.order_by(Song.title)).all()
-    return [SongRead.from_orm(song) for song in songs]
+    return [SongRead.model_validate(song, from_attributes=True) for song in songs]
 
 
 @app.patch("/admin/songs/{song_id}", response_model=SongRead)
@@ -216,7 +216,7 @@ def update_song(
     if not song:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Song not found")
 
-    update_data = song_update.dict(exclude_unset=True)
+    update_data = song_update.model_dump(exclude_unset=True)
     if "youtube_url" in update_data:
         youtube_id = extract_youtube_id(update_data["youtube_url"])
         update_data["youtube_video_id"] = youtube_id
@@ -226,7 +226,7 @@ def update_song(
     session.add(song)
     session.commit()
     session.refresh(song)
-    return SongRead.from_orm(song)
+    return SongRead.model_validate(song, from_attributes=True)
 
 
 @app.post("/admin/songs/{song_id}/approve", response_model=SongRead)
@@ -243,7 +243,7 @@ def approve_song(
     session.add(song)
     session.commit()
     session.refresh(song)
-    return SongRead.from_orm(song)
+    return SongRead.model_validate(song, from_attributes=True)
 
 
 @app.post("/admin/songs/{song_id}/reject", response_model=SongRead)
@@ -260,7 +260,7 @@ def reject_song(
     session.add(song)
     session.commit()
     session.refresh(song)
-    return SongRead.from_orm(song)
+    return SongRead.model_validate(song, from_attributes=True)
 
 
 # ---------------------------------------------------------------------------
@@ -297,7 +297,7 @@ def create_room(room_in: RoomCreate, session: Session = Depends(get_session)) ->
 
     return RoomJoinResponse(
         room=_build_room_state(session, room),
-        player=PlayerRead.from_orm(host_player),
+        player=PlayerRead.model_validate(host_player, from_attributes=True),
     )
 
 
@@ -331,7 +331,7 @@ def join_room(code: str, join_request: JoinRoomRequest, session: Session = Depen
 
     return RoomJoinResponse(
         room=_build_room_state(session, room),
-        player=PlayerRead.from_orm(player),
+        player=PlayerRead.model_validate(player, from_attributes=True),
     )
 
 
@@ -460,7 +460,7 @@ def submit_guess(
     session.refresh(room)
 
     return GuessResponse(
-        guess=GuessRead.from_orm(guess),
+        guess=GuessRead.model_validate(guess, from_attributes=True),
         is_correct=is_correct,
         similarity=similarity,
         round_status=round_obj.status,

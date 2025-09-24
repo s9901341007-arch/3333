@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SongCreate(BaseModel):
@@ -16,7 +16,8 @@ class SongCreate(BaseModel):
     notes: Optional[str] = None
     status: Optional[str] = Field(default="pending")
 
-    @validator("status")
+    @field_validator("status")
+    @classmethod
     def validate_status(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
@@ -34,7 +35,8 @@ class SongUpdate(BaseModel):
     notes: Optional[str] = None
     status: Optional[str] = None
 
-    @validator("status")
+    @field_validator("status")
+    @classmethod
     def validate_status(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
@@ -45,6 +47,8 @@ class SongUpdate(BaseModel):
 
 
 class SongRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     anime_title: str
@@ -56,20 +60,16 @@ class SongRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class SongPlaybackInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     youtube_url: str
     youtube_video_id: str
     start_time_seconds: int
     anime_title: Optional[str] = None
-
-    class Config:
-        orm_mode = True
 
 
 class RoomCreate(BaseModel):
@@ -81,17 +81,18 @@ class RoomCreate(BaseModel):
 
 
 class PlayerRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     nickname: str
     score: int
     is_host: bool
     joined_at: datetime
 
-    class Config:
-        orm_mode = True
-
 
 class RoomState(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     code: str
     status: str
@@ -103,9 +104,6 @@ class RoomState(BaseModel):
     updated_at: datetime
     winning_player_id: Optional[int] = None
     players: List[PlayerRead]
-
-    class Config:
-        orm_mode = True
 
 
 class RoomJoinResponse(BaseModel):
@@ -124,6 +122,8 @@ class RoundStartRequest(BaseModel):
 
 
 class RoundState(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     room_code: str
     status: str
@@ -135,9 +135,6 @@ class RoundState(BaseModel):
     skip_votes: int
     total_players: int
 
-    class Config:
-        orm_mode = True
-
 
 class GuessCreate(BaseModel):
     player_id: int
@@ -145,15 +142,14 @@ class GuessCreate(BaseModel):
 
 
 class GuessRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     player_id: int
     guess_text: str
     similarity: float
     is_correct: bool
     submitted_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class GuessResponse(BaseModel):
